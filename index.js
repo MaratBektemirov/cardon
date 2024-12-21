@@ -162,6 +162,8 @@ fs.createReadStream(providersFile)
             .pipe(csv())
             .on('data', (data) => payments.push(data))
             .on('end', () => {
+                const debug = [];
+
                 let i = 0;
                 while (i < payments.length) {
                     if (providersByCur[payments[i].cur]) {
@@ -181,7 +183,7 @@ fs.createReadStream(providersFile)
 
                         payments[i].flow = payments[i].flow.join('-')
 
-                        //console.log(branch.getFlow(), payments[i].eventTimeRes, payments[i].cur, payments[i].amount);
+                        debug.push([flow, payments[i].eventTimeRes, payments[i].cur, payments[i].amount])
                     }
 
                     i++
@@ -202,6 +204,7 @@ fs.createReadStream(providersFile)
                 csvWriter.writeRecords(payments)
                     .then(() => {
                         console.log('...Done');
+                        //fs.writeFileSync("debug.json", JSON.stringify(debug, null, 2));
                     });
             });
     });
