@@ -13,7 +13,7 @@ class ProvidersRepo {
     }
 
     getPaymentBranch(payment) {
-        const paymentBranch = new PaymentBranch();
+        const paymentBranch = new PaymentBranch(payment);
 
         const ids = Object.keys(this.byId);
 
@@ -23,7 +23,7 @@ class ProvidersRepo {
             const rule = provider.getRuleForPayment(payment);
 
             if (rule) {
-                paymentBranch.addRule(rule, payment);
+                paymentBranch.addRule(rule);
             }
 
             i++;

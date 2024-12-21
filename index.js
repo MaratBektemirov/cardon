@@ -20,6 +20,7 @@ const outputFile = process.argv.slice(2)[2];
             provider.MIN_SUM = +provider.MIN_SUM;
             provider.MAX_SUM = +provider.MAX_SUM;
             provider.ID = +provider.ID;
+            provider.AVG_TIME = +provider.AVG_TIME;
 
             const cur = provider.CURRENCY;
     
@@ -32,34 +33,47 @@ const outputFile = process.argv.slice(2)[2];
 
     const payments = await readFile(paymentsFile);
 
+    let totalTime = 0;
+    let totalCommission = 0;
+    let statsByCur = {};
+    let failed = 0;
+    let captured = 0;
+
     {
         let i = 0;
         while (i < payments.length) {
             const payment = payments[i];
+            payment.amount = +payment.amount;
 
             const providersRepo = providersRepoByCur[payment.cur];
 
             if (providersRepo) {
                 const branch = providersRepo.getPaymentBranch(payment);
-                payment.flow = [];
-    
                 const flow = branch.getFlow();
-    
-                let j = 0
-                while (j < flow.isValid.length) {
-                    if (flow.isValid[j]) {
-                        payment.flow.push(flow.id[j]);
-                    }
-    
-                    j++
+                payment.flow = flow.getProviders().join('-');
+                const flowResult = flow.execute();
+
+                if (flowResult.provider) {
+                    totalCommission += flowResult.commission;
+                    providersRepo.byId[flowResult.provider].addPayment(payment);
+                    statsByCur[payment.cur] = statsByCur[payment.cur] || {money: 0, commission: 0, time: 0, count: 0};
+                    statsByCur[payment.cur].money += payment.amount;
+                    statsByCur[payment.cur].commission += flowResult.commission;
+                    statsByCur[payment.cur].time += flowResult.time;
+                    statsByCur[payment.cur].count++;
+                    captured++;
+                } else {
+                    failed++;
                 }
-    
-                payment.flow = payment.flow.join('-')
+
+                totalTime += flowResult.time;
             }
     
             i++
         }
     }
+
+    console.log(`All money: ${JSON.stringify(statsByCur, null, 2)}, total time: ${totalTime}, captured: ${captured}, failed: ${failed}`);
 
     await writeFile(outputFile, [
         { id: 'eventTimeRes', title: 'eventTimeRes' },

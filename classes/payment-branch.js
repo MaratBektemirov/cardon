@@ -1,44 +1,60 @@
+const PaymentFlow = require('./payment-flow');
+
 class PaymentBranch {
-    byCommision = {};
+    payment = null;
+    byCommission = {};
 
-    constructor() {
+    constructor(payment) {
+        this.payment = payment;
     }
 
-    checkRule(rule, payment) {
-        return payment.amount >= rule.MIN_SUM && payment.amount <= rule.MAX_SUM;
+    checkRule(rule) {
+        return this.payment.amount >= rule.MIN_SUM && this.payment.amount <= rule.MAX_SUM;
     }
 
-    addRule(rule, payment) {
-        this.byCommision[rule.COMMISSION] = this.byCommision[rule.COMMISSION] || [];
-        this.byCommision[rule.COMMISSION].push(Object.assign({ isValid: this.checkRule(rule, payment) }, rule));
-        this.byCommision[rule.COMMISSION].sort((a, b) => b.CONVERSION - a.CONVERSION);
+    addRule(rule) {
+        this.byCommission[rule.COMMISSION] = this.byCommission[rule.COMMISSION] || {};
+        this.byCommission[rule.COMMISSION][rule.CONVERSION] = this.byCommission[rule.COMMISSION][rule.CONVERSION] || [];
+        this.byCommission[rule.COMMISSION][rule.CONVERSION].push(Object.assign({ isOk: this.checkRule(rule) }, rule));
+        this.byCommission[rule.COMMISSION][rule.CONVERSION].sort((a, b) => a.AVG_TIME - b.AVG_TIME);
     }
 
     getFlow() {
-        const result = {
-            isValid: [],
-            id: [],
-        };
+        const flow = new PaymentFlow(this.payment.amount);
 
-        const keys = Object.keys(this.byCommision).map((v) => +v).sort((a, b) => a - b);
+        const byCommissionKeys = Object.keys(this.byCommission).map((v) => +v).sort((a, b) => a - b);
 
         let i = 0
-        while (i < keys.length) {
-            const c = keys[i];
-            const providersByCommision = this.byCommision[c];
+        while (i < byCommissionKeys.length) {
+            const commission = byCommissionKeys[i];
+
+            const byConversion = this.byCommission[commission];
+            const byConversionKeys = Object.keys(byConversion).map((v) => +v).sort((a, b) => b - a);
 
             let j = 0;
-            while (j < providersByCommision.length) {
-                const provider = providersByCommision[j];
-                result.isValid.push(provider.isValid)
-                result.id.push(provider.ID);
+            while (j < byConversionKeys.length) {
+                const conversion = byConversionKeys[j];
+
+                let k = 0;
+                while (k < byConversion[conversion].length) {
+                    const provider = byConversion[conversion][k];
+                    
+                    flow.conversion.push(provider.CONVERSION);
+                    flow.time.push(provider.AVG_TIME);
+                    flow.commission.push(provider.COMMISSION);
+                    flow.isOk.push(provider.isOk)
+                    flow.id.push(provider.ID);
+
+                    k++;
+                }
+
                 j++;
             }
 
             i++
         }
 
-        return result;
+        return flow;
     }
 }
 
