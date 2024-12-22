@@ -4,9 +4,9 @@ const Provider = require('./provider');
 class ProvidersRepo {
     byId = {};
 
-    add(provider) {
+    add(provider, limit) {
         if (!this.byId[provider.ID]) {
-            this.byId[provider.ID] = new Provider(provider.ID);
+            this.byId[provider.ID] = new Provider(provider.ID, limit);
         }
 
         this.byId[provider.ID].addRule(provider);

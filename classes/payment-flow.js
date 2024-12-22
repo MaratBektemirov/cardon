@@ -6,8 +6,8 @@ class PaymentFlow {
     isOk = [];
     id = [];
 
-    constructor(amount) {
-        this.amount = amount;
+    constructor(payment) {
+        this.payment = payment;
     }
 
     getProviders() {
@@ -43,7 +43,7 @@ class PaymentFlow {
             if (r <= p) {
                 result.status = 'CAPTURED';
                 result.provider = this.id[i];
-                result.commission = this.amount * this.commission[i];
+                result.commission = this.payment.amount * this.commission[i];
                 break;
             }
 

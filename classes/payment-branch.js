@@ -20,7 +20,7 @@ class PaymentBranch {
     }
 
     getFlow() {
-        const flow = new PaymentFlow(this.payment.amount);
+        const flow = new PaymentFlow(this.payment);
 
         const byCommissionKeys = Object.keys(this.byCommission).map((v) => +v).sort((a, b) => a - b);
 
@@ -38,7 +38,7 @@ class PaymentBranch {
                 let k = 0;
                 while (k < byConversion[conversion].length) {
                     const provider = byConversion[conversion][k];
-                    
+
                     flow.conversion.push(provider.CONVERSION);
                     flow.time.push(provider.AVG_TIME);
                     flow.commission.push(provider.COMMISSION);

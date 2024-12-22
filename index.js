@@ -1,10 +1,14 @@
 
 const ProvidersRepo = require('./classes/providers-repo');
-const { readFile, writeFile } = require('./utils');
+const { readFile, writeFile, getDate, progress } = require('./utils');
+const fsPromises = require('fs').promises;
 
 const providersFile = process.argv.slice(2)[0];
 const paymentsFile = process.argv.slice(2)[1];
 const outputFile = process.argv.slice(2)[2];
+const limit = process.argv.slice(2)[3];
+const ratesFile = process.argv.slice(2)[4];
+const statsFileName = process.argv.slice(2)[5];
 
 (async () => {
     const providersRepoByCur = {};
@@ -21,31 +25,40 @@ const outputFile = process.argv.slice(2)[2];
             provider.MAX_SUM = +provider.MAX_SUM;
             provider.ID = +provider.ID;
             provider.AVG_TIME = +provider.AVG_TIME;
+            provider.LIMIT_MIN = +provider.LIMIT_MIN;
+            provider.LIMIT_MAX = +provider.LIMIT_MAX;
 
             const cur = provider.CURRENCY;
-    
+
             providersRepoByCur[cur] = providersRepoByCur[cur] || new ProvidersRepo();
-            providersRepoByCur[cur].add(provider);
-    
+            providersRepoByCur[cur].add(provider, limit);
+
             i++
         }
     }
 
     const payments = await readFile(paymentsFile);
 
-    let totalTime = 0;
-    let totalCommission = 0;
-    let statsByCur = {};
-    let failed = 0;
-    let captured = 0;
+    const statsFile = {
+        totalMoneyUSD: 0,
+        totalCommissionUSD: 0,
+        totalTime: 0,
+        totalFailed: 0,
+        totalCaptured: 0,
+        avgTransactionTime: 0,
+        byCur: {},
+    }
 
     {
         let i = 0;
         while (i < payments.length) {
             const payment = payments[i];
             payment.amount = +payment.amount;
+            payment.date = getDate(payment.eventTimeRes);
 
             const providersRepo = providersRepoByCur[payment.cur];
+
+            const s = progress();
 
             if (providersRepo) {
                 const branch = providersRepo.getPaymentBranch(payment);
@@ -54,26 +67,35 @@ const outputFile = process.argv.slice(2)[2];
                 const flowResult = flow.execute();
 
                 if (flowResult.provider) {
-                    totalCommission += flowResult.commission;
                     providersRepo.byId[flowResult.provider].addPayment(payment);
-                    statsByCur[payment.cur] = statsByCur[payment.cur] || {money: 0, commission: 0, time: 0, count: 0};
-                    statsByCur[payment.cur].money += payment.amount;
-                    statsByCur[payment.cur].commission += flowResult.commission;
-                    statsByCur[payment.cur].time += flowResult.time;
-                    statsByCur[payment.cur].count++;
-                    captured++;
+                    statsFile.byCur[payment.cur] = statsFile.byCur[payment.cur] || {
+                        money: 0,
+                        commission: 0,
+                        time: 0,
+                        count: 0,
+                        moneyUSD: 0,
+                        commissionUSD: 0,
+                    };
+
+                    statsFile.byCur[payment.cur].money += payment.amount;
+                    statsFile.byCur[payment.cur].commission += flowResult.commission;
+                    statsFile.byCur[payment.cur].time += flowResult.time;
+                    statsFile.byCur[payment.cur].count++;
+                    statsFile.totalCaptured++;
                 } else {
-                    failed++;
+                    statsFile.totalFailed++;
                 }
 
-                totalTime += flowResult.time;
+                statsFile.totalTime += flowResult.time;
+
+                s.next(`Processing payments, ${i + 1} of ${payments.length}`)
             }
-    
+
             i++
         }
-    }
 
-    console.log(`All money: ${JSON.stringify(statsByCur, null, 2)}, total time: ${totalTime}, captured: ${captured}, failed: ${failed}`);
+        statsFile.avgTransactionTime = statsFile.totalTime/payments.length;
+    }
 
     await writeFile(outputFile, [
         { id: 'eventTimeRes', title: 'eventTimeRes' },
@@ -84,5 +106,34 @@ const outputFile = process.argv.slice(2)[2];
         { id: 'flow', title: 'flow' },
     ], payments);
 
-    console.log(`${outputFile} has been created`);
+    const rates = await readFile(ratesFile);
+
+    {
+        const keys = Object.keys(statsFile.byCur);
+
+        let i = 0
+        while (i < keys.length) {
+            const cur = keys[i];
+            const rate = rates.find((r) => r.destination === cur);
+
+            const curData = statsFile.byCur[cur];
+
+            curData.moneyUSD = curData.money * rate.rate;
+            curData.commissionUSD = curData.commission * rate.rate;
+
+            statsFile.totalMoneyUSD += curData.moneyUSD;
+            statsFile.totalCommissionUSD += curData.commissionUSD;
+
+            i++;
+        }
+
+        readFile
+    }
+
+    await fsPromises.writeFile(
+        statsFileName,
+        JSON.stringify(statsFile, null, 2)
+    );
+
+    console.log(`\nOk`);
 })();

@@ -24,4 +24,45 @@ function writeFile(outputFile, headers, rows) {
     return csvWriter.writeRecords(rows);
 }
 
-module.exports = { readFile, writeFile }
+function getDate(time) {
+    return new Date(time).toLocaleString('ru-RU', {
+        year: 'numeric',
+        month: 'numeric',
+        day: 'numeric',
+    })
+}
+
+function progress() {
+    let i = 0;
+
+    return {
+      finish: (text = '') => {
+        if (typeof process.stdout.clearLine === 'function') {
+          process.stdout.clearLine(0);
+          process.stdout.cursorTo(0);
+          process.stdout.write(text);
+        }
+      },
+      next: (text) => {
+        let t = '';
+  
+        if (text) {
+          t = ' ' + text;
+        }
+
+        if (typeof process.stdout.clearLine === 'function') {
+          process.stdout.clearLine(0);
+          process.stdout.cursorTo(0);
+          process.stdout.write(t);
+        }
+
+        i++;
+  
+        if (i === 4) {
+          i = 0;
+        }
+      }
+    }
+  }
+
+module.exports = { readFile, writeFile, getDate, progress }
