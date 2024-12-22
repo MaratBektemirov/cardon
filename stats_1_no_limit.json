@@ -1,0 +1,130 @@
+{
+  "totalMoneyUSD": 3682568.647783488,
+  "totalCommissionUSD": 113944.4198135644,
+  "totalTime": 4317364,
+  "totalFailed": 29260,
+  "totalCaptured": 164718,
+  "avgTransactionTime": 22.256977595397416,
+  "byCur": {
+    "RUB": {
+      "money": 232772040.58100787,
+      "commission": 7669990.240844974,
+      "time": 1642770,
+      "count": 64074,
+      "moneyUSD": 2231585.553050122,
+      "commissionUSD": 73532.19643898077
+    },
+    "AZN": {
+      "money": 256311.14599999573,
+      "commission": 5502.546500000062,
+      "time": 377716,
+      "count": 15429,
+      "moneyUSD": 150420.04069728748,
+      "commissionUSD": 3229.2519517225364
+    },
+    "TRY": {
+      "money": 2503976.4820000003,
+      "commission": 76464.44758699994,
+      "time": 34522,
+      "count": 2259,
+      "moneyUSD": 72467.58336556201,
+      "commissionUSD": 2212.9575776153656
+    },
+    "UZS": {
+      "money": 7161223866.742998,
+      "commission": 250642835.33600563,
+      "time": 328336,
+      "count": 41042,
+      "moneyUSD": 558575.4616059539,
+      "commissionUSD": 19550.14115620844
+    },
+    "BRL": {
+      "money": 3264666.5880000126,
+      "commission": 70348.63204000233,
+      "time": 952124,
+      "count": 37299,
+      "moneyUSD": 562773.0204392062,
+      "commissionUSD": 12126.908236951722
+    },
+    "KZT": {
+      "money": 29486125.543999996,
+      "commission": 884583.7663200003,
+      "time": 50736,
+      "count": 3624,
+      "moneyUSD": 59060.70946463199,
+      "commissionUSD": 1771.8212839389605
+    },
+    "EUR": {
+      "money": 43516.68699999999,
+      "commission": 1395.3774710000007,
+      "time": 16798,
+      "count": 745,
+      "moneyUSD": 45336.94650052299,
+      "commissionUSD": 1453.7447152344596
+    },
+    "PHP": {
+      "money": 381.303,
+      "commission": 19.065150000000003,
+      "time": 48,
+      "count": 2,
+      "moneyUSD": 6.469568001,
+      "commissionUSD": 0.32347840005000006
+    },
+    "JPY": {
+      "money": 31601.699999999997,
+      "commission": 1061.5420000000006,
+      "time": 7038,
+      "count": 218,
+      "moneyUSD": 204.17858369999996,
+      "commissionUSD": 6.858622862000003
+    },
+    "AUD": {
+      "money": 162.68200000000002,
+      "commission": 4.392414,
+      "time": 126,
+      "count": 10,
+      "moneyUSD": 105.74330000000002,
+      "commissionUSD": 2.8550690999999997
+    },
+    "MYR": {
+      "money": 460.5,
+      "commission": 18.77,
+      "time": 184,
+      "count": 9,
+      "moneyUSD": 103.065426,
+      "commissionUSD": 4.20095124
+    },
+    "USD": {
+      "money": 1835.136,
+      "commission": 49.548672,
+      "time": 52,
+      "count": 2,
+      "moneyUSD": 1835.136,
+      "commissionUSD": 49.548672
+    },
+    "GHS": {
+      "money": 60.9,
+      "commission": 2.436,
+      "time": 14,
+      "count": 1,
+      "moneyUSD": 4.1412,
+      "commissionUSD": 0.16564800000000002
+    },
+    "MXN": {
+      "money": 557.5,
+      "commission": 18.6651,
+      "time": 102,
+      "count": 3,
+      "moneyUSD": 27.2901825,
+      "commissionUSD": 0.9136753101
+    },
+    "PEN": {
+      "money": 240,
+      "commission": 9.6,
+      "time": 34,
+      "count": 1,
+      "moneyUSD": 63.3084,
+      "commissionUSD": 2.532336
+    }
+  }
+}
